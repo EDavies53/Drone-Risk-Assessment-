@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UKSN Drone Risk Assessment</title>
+<style>
+:root{--ink:#252525;--grey:#55565a;--light:#ececec;--paper:#fff;--burgundy:#87083e;--blue:#0750b4;--green:#16833b;--yellow:#f4d21d;--red:#e21d25}
+*{box-sizing:border-box}
+body{margin:0;background:#e8e9eb;color:var(--ink);font:14px/1.4 Arial,Helvetica,sans-serif}
+.toolbar{position:sticky;top:0;z-index:5;background:#202124;color:#fff;padding:10px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;box-shadow:0 2px 8px #0002}
+.toolbar strong{margin-right:auto;font-size:15px;letter-spacing:.04em}
+button{font:inherit;font-weight:700;border:0;border-radius:4px;padding:9px 12px;cursor:pointer}
+button.primary{background:var(--blue);color:white}button.secondary{background:#e8e8e8;color:#222}button.danger{background:#a51d35;color:#fff}
+.status{font-size:12px;color:#c8f7d0;margin-left:4px}
+.sheet{max-width:1000px;margin:24px auto;background:var(--paper);padding:34px 38px 30px;box-shadow:0 4px 22px #0002}
+h1{font-size:27px;line-height:1.1;margin:0 0 16px;letter-spacing:-.7px}
+.top-grid{display:grid;grid-template-columns:1.4fr .8fr;gap:20px;align-items:start}
+.meta{display:grid;grid-template-columns:1fr 130px 1fr;gap:10px;margin-bottom:16px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+label,.label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#444}
+input,select,textarea{font:inherit;border:1px solid #b8b8b8;border-radius:2px;padding:7px 8px;min-width:0;width:100%;background:#fff;color:#222}
+input:focus,select:focus,textarea:focus{outline:2px solid #82b6f5;outline-offset:0}
+input[type=checkbox]{width:auto;accent-color:var(--blue)}
+.section-title{background:var(--grey);color:#fff;font-weight:800;text-transform:uppercase;padding:10px 12px;letter-spacing:.04em;margin:0 0 10px}
+.panel{border:1px solid #ccc;padding:12px;margin-bottom:15px}
+.pilot-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.cert-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.cert-row label{display:flex;align-items:center;gap:4px;font-size:11px}
+.checklist{border:1px solid #ccc;padding:12px}
+.checklist h2{margin:0 0 10px;background:var(--blue);color:white;text-align:center;font-size:14px;padding:9px;text-transform:uppercase}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 14px}
+.check-item{display:flex;align-items:flex-start;gap:7px;font-size:12px}
+.drone-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.drone-card{border:1px solid #ccc;display:grid;grid-template-columns:36px 1fr;align-items:stretch}
+.drone-num{background:#aaa;color:#fff;font-size:24px;font-weight:800;display:grid;place-items:center}
+.drone-fields{padding:9px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.matrix-wrap{overflow-x:auto;margin:10px 0 14px}
+.matrix{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10px;text-align:center}
+.matrix th,.matrix td{border:1px solid #fff;padding:5px 3px}
+.matrix .axis{background:var(--grey);color:white;text-transform:uppercase;font-weight:800;width:90px}
+.matrix .sev{color:white;font-weight:800}
+.sev1{background:#16833b}.sev2{background:#f3cc18;color:#222!important}.sev3{background:#d71920}.sev4{background:#555}.sev5{background:#76002c}
+.likelihood{background:#555;color:white;font-weight:800;text-align:left}
+.level-low{background:#277c27;color:white;font-weight:800}.level-med{background:#f0c817;color:#222;font-weight:800}.level-high{background:#cf101b;color:white;font-weight:800}
+.score{font-weight:800;color:white}
+.risk-table{width:100%;border-collapse:collapse;table-layout:fixed}
+.risk-table th{background:var(--burgundy);color:white;text-transform:uppercase;font-size:10px;padding:9px 5px}
+.risk-table td{border:1px solid #777;padding:4px;vertical-align:top}
+.risk-table input,.risk-table select,.risk-table textarea{border:0;padding:5px 3px;font-size:12px;min-height:31px}
+.risk-table textarea{resize:vertical;min-height:54px}
+.risk-table .hazard{width:19%}.risk-table .small{width:10%}.risk-table .action{width:29%}.risk-table .notescol{width:19%}
+.row-actions{display:flex;justify-content:space-between;gap:8px;margin:8px 0 15px}
+.notes-title{display:block;background:var(--blue);color:white;text-align:center;width:180px;margin:18px auto -1px;padding:8px;font-weight:800;text-transform:uppercase;clip-path:polygon(0 0,100% 0,94% 100%,6% 100%)}
+#notes{min-height:100px}
+.smallprint{font-size:11px;color:#666;margin-top:12px}
+@media(max-width:700px){.sheet{margin:0;padding:20px 14px}.top-grid,.drone-grid{grid-template-columns:1fr}.meta{grid-template-columns:1fr 1fr}.meta .wide{grid-column:1/-1}.pilot-grid{grid-template-columns:1fr}.check-grid{grid-template-columns:1fr}.toolbar strong{width:100%}.risk-table{min-width:760px}.matrix{min-width:600px}}
+@media print{body{background:#fff}.toolbar{display:none}.sheet{margin:0;max-width:none;box-shadow:none;padding:0}.sheet input,.sheet select,.sheet textarea{border:0;padding:2px 1px;appearance:none;background:transparent}.sheet button,.row-actions,.smallprint{display:none!important}.panel,.checklist{break-inside:avoid}.risk-table textarea{min-height:38px} @page{size:A4 landscape;margin:10mm}}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <strong>UKSN · DRONE RISK ASSESSMENT</strong>
+  <button class="primary" id="saveDefaults">Save standard details</button>
+  <button class="secondary" id="loadDefaults">Load standard details</button>
+  <button class="secondary" id="printBtn">Print / Save PDF</button>
+  <button class="secondary" id="exportBtn">Export data</button>
+  <button class="secondary" id="importBtn">Import data</button>
+  <button class="danger" id="clearBtn">Clear assessment</button>
+  <span class="status" id="status">Auto-save enabled</span>
+  <input id="importFile" type="file" accept=".json,application/json" hidden>
+</div>
+<main class="sheet" id="assessment">
+  <h1>UKSN DRONE RISK ASSESSMENT</h1>
+  <div class="meta">
+    <div class="field wide"><label for="location">Location</label><input id="location" data-default placeholder="Operating location / site"></div>
+    <div class="field"><label for="date">Date</label><input id="date" type="date"></div>
+    <div class="field"><label for="reference">Reference number</label><input id="reference" data-default></div>
+    <div class="field"><label for="signature">Signature / assessor</label><input id="signature" data-default></div>
+  </div>
+  <div class="top-grid">
+    <section>
+      <h2 class="section-title">✦ Pilot details</h2>
+      <div class="panel">
+        <div class="field" style="margin-bottom:9px"><label for="pilotName">Name</label><input id="pilotName" data-default></div>
+        <div class="field" style="margin-bottom:9px"><label>Certification</label><div class="cert-row">
+          <label><input type="checkbox" id="certBasic" data-default> Basic</label>
+          <label><input type="checkbox" id="certA2" data-default> A2 CofC</label>
+          <label><input type="checkbox" id="certGvc" data-default> PfCO / GVC</label>
+        </div></div>
+        <div class="pilot-grid">
+          <div class="field"><label for="flyerId">Flyer ID</label><input id="flyerId" data-default></div>
+          <div class="field"><label for="operatorId">Operator ID</label><input id="operatorId" data-default></div>
+          <div class="field" style="grid-column:1/-1"><label for="insurance">Insurance</label><input id="insurance" data-default></div>
+        </div>
+      </div>
+    </section>
+    <section class="checklist">
+      <h2>Flight checklist</h2>
+      <div class="check-grid">
+        <label class="check-item"><input type="checkbox" id="cl1"> Confirm flight area is clear and safe for flight</label>
+        <label class="check-item"><input type="checkbox" id="cl2"> Check weather and wind conditions</label>
+        <label class="check-item"><input type="checkbox" id="cl3"> Confirm people on site have been briefed</label>
+        <label class="check-item"><input type="checkbox" id="cl4"> Test flight controls and battery status</label>
+        <label class="check-item"><input type="checkbox" id="cl5"> Confirm airspace restrictions and permissions</label>
+        <label class="check-item"><input type="checkbox" id="cl6"> Check failsafe / return-to-home settings</label>
+        <label class="check-item"><input type="checkbox" id="cl7"> Confirm emergency landing area and procedure</label>
+        <label class="check-item"><input type="checkbox" id="cl8"> Brief observers / spotters if applicable</label>
+      </div>
+    </section>
+  </div>
+  <h2 class="section-title">♧ Drone details</h2>
+  <div class="drone-grid">
+    <div class="drone-card"><div class="drone-num">1</div><div class="drone-fields">
+      <div class="field"><label for="drone1Model">Model</label><input id="drone1Model" data-default></div>
+      <div class="field"><label for="drone1Class">Class</label><input id="drone1Class" data-default placeholder="e.g. C1"></div>
+      <div class="field"><label for="drone1Weight">Weight (g)</label><input id="drone1Weight" data-default type="number"></div>
+      <div class="field"><label for="drone1Id">Serial / ID</label><input id="drone1Id" data-default></div>
+    </div></div>
+    <div class="drone-card"><div class="drone-num">2</div><div class="drone-fields">
+      <div class="field"><label for="drone2Model">Model</label><input id="drone2Model" data-default></div>
+      <div class="field"><label for="drone2Class">Class</label><input id="drone2Class" data-default></div>
+      <div class="field"><label for="drone2Weight">Weight (g)</label><input id="drone2Weight" data-default type="number"></div>
+      <div class="field"><label for="drone2Id">Serial / ID</label><input id="drone2Id" data-default></div>
+    </div></div>
+  </div>
+  <h2 class="section-title">Risk rating guide</h2>
+  <div class="matrix-wrap">
+    <table class="matrix" aria-label="Risk rating guide">
+      <tr><th class="axis" rowspan="2">Severity</th><th class="sev sev1">1 · Trivial</th><th class="sev sev2">2 · Minor injury</th><th class="sev sev3">3 · Medical / injury</th><th class="sev sev4">4 · Serious injury</th><th class="sev sev5">5 · Multiple fatalities</th></tr>
+      <tr><td colspan="5" style="background:#eee;color:#333">Select severity and likelihood for each hazard below. Risk score = severity × likelihood.</td></tr>
+      <tr><th class="likelihood">Likelihood</th><td style="background:#b8e8f3">Extremely improbable</td><td style="background:#36b7ec">Improbable</td><td style="background:#66d600">Remote</td><td style="background:#f5cc21">Occasional</td><td style="background:#ed9b14">Probable</td></tr>
+      <tr><th class="likelihood">Rating</th><td colspan="5" style="background:#eee;color:#333">1–4 Low risk · 5–12 Medium risk · 13–25 High risk</td></tr>
+    </table>
+  </div>
+  <h2 class="section-title">Hazard assessment</h2>
+  <div class="matrix-wrap">
+  <table class="risk-table" id="riskTable">
+    <thead><tr><th class="hazard">Hazard</th><th class="small">Severity (1–5)</th><th class="small">Likelihood (1–5)</th><th class="small">Rating</th><th class="action">Actions to reduce risk</th><th class="notescol">Notes</th></tr></thead>
+    <tbody id="riskRows"></tbody>
+  </table>
+  </div>
+  <div class="row-actions"><button class="secondary" id="addRow">+ Add hazard row</button><button class="secondary" id="resetRows">Reset hazard rows</button></div>
+  <span class="notes-title">Notes</span>
+  <textarea id="notes" placeholder="Additional site notes, emergency arrangements, permissions, weather limits, etc."></textarea>
+  <p class="smallprint">Your form auto-saves in this browser on this device. Use “Save standard details” to keep recurring pilot / operator / drone information available for future assessments. Export a JSON backup if you need to move data to another device. This template is a starting point and does not replace a site-specific assessment or applicable aviation rules.</p>
+</main>
+<script>
+(() => {
+  const FORM_KEY = 'uksn-drone-assessment-v1';
+  const DEFAULT_KEY = 'uksn-drone-defaults-v1';
+  const $ = id => document.getElementById(id);
+  const status = msg => { $('status').textContent = msg; };
+  const fields = () => [...document.querySelectorAll('#assessment input, #assessment select, #assessment textarea')];
+  let saveTimer;
+  function readForm(){
+    const data = {};
+    fields().forEach(el => {
+      if (el.id) data[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+    });
+    data.hazards = [...$('riskRows').querySelectorAll('tr')].map(row => ({
+      hazard: row.querySelector('[data-col="hazard"]').value,
+      severity: row.querySelector('[data-col="severity"]').value,
+      likelihood: row.querySelector('[data-col="likelihood"]').value,
+      actions: row.querySelector('[data-col="actions"]').value,
+      notes: row.querySelector('[data-col="notes"]').value
+    }));
+    return data;
+  }
+  function saveForm(){
+    try { localStorage.setItem(FORM_KEY, JSON.stringify(readForm())); status('Saved locally'); }
+    catch(e){ status('Could not save locally'); }
+  }
+  function scheduleSave(){ status('Saving…'); clearTimeout(saveTimer); saveTimer=setTimeout(saveForm,250); }
+  function riskScore(s,l){ return s && l ? Number(s)*Number(l) : ''; }
+  function riskClass(score){ if(!score)return ''; return score<=4?'level-low':score<=12?'level-med':'level-high'; }
+  function addHazard(item={}){
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td><textarea data-col="hazard" aria-label="Hazard"></textarea></td>
+      <td><select data-col="severity" aria-label="Severity"><option value="">—</option>${[1,2,3,4,5].map(n=>`<option value="${n}">${n}</option>`).join('')}</select></td>
+      <td><select data-col="likelihood" aria-label="Likelihood"><option value="">—</option>${[1,2,3,4,5].map(n=>`<option value="${n}">${n}</option>`).join('')}</select></td>
+      <td><input data-col="rating" aria-label="Risk rating" readonly></td>
+      <td><textarea data-col="actions" aria-label="Actions to reduce risk"></textarea></td>
+      <td><textarea data-col="notes" aria-label="Notes"></textarea><button type="button" class="secondary remove-row" style="padding:4px 6px;font-size:10px">Remove</button></td>`;
+    $('riskRows').appendChild(tr);
+    tr.querySelector('[data-col="hazard"]').value=item.hazard||'';
+    tr.querySelector('[data-col="severity"]').value=item.severity||'';
+    tr.querySelector('[data-col="likelihood"]').value=item.likelihood||'';
+    tr.querySelector('[data-col="actions"]').value=item.actions||'';
+    tr.querySelector('[data-col="notes"]').value=item.notes||'';
+    function update(){
+      const score=riskScore(tr.querySelector('[data-col="severity"]').value,tr.querySelector('[data-col="likelihood"]').value);
+      const rating=tr.querySelector('[data-col="rating"]');
+      rating.value=score ? `${score} · ${score<=4?'LOW':score<=12?'MEDIUM':'HIGH'}` : '';
+      rating.className=riskClass(score);
+      scheduleSave();
+    }
+    tr.querySelectorAll('input,select,textarea').forEach(el=>el.addEventListener('input',()=>{ if(el.dataset.col==='severity'||el.dataset.col==='likelihood')update(); else scheduleSave(); }));
+    tr.querySelector('.remove-row').addEventListener('click',()=>{tr.remove();scheduleSave();});
+    update();
+  }
+  function setForm(data){
+    if(!data)return;
+    fields().forEach(el=>{
+      if(!el.id || !(el.id in data))return;
+      if(el.type==='checkbox')el.checked=!!data[el.id]; else el.value=data[el.id] ?? '';
+    });
+    $('riskRows').innerHTML='';
+    const hazards=data.hazards || [];
+    (hazards.length ? hazards : Array.from({length:5},()=>({}))).forEach(addHazard);
+    status('Loaded');
+  }
+  function loadSaved(){
+    try{
+      const raw=localStorage.getItem(FORM_KEY);
+      if(raw){setForm(JSON.parse(raw));return true;}
+    }catch(e){}
+    for(let i=0;i<5;i++)addHazard({});
+    return false;
+  }
+  function defaultsData(){
+    const result={};
+    document.querySelectorAll('[data-default]').forEach(el=>{result[el.id]=el.type==='checkbox'?el.checked:el.value;});
+    return result;
+  }
+  function applyDefaults(){
+    try{
+      const data=JSON.parse(localStorage.getItem(DEFAULT_KEY)||'{}');
+      Object.entries(data).forEach(([id,value])=>{
+        const el=$(id); if(!el)return;
+        if(el.type==='checkbox')el.checked=!!value;else el.value=value??'';
+      });
+      scheduleSave();status('Standard details loaded');
+    }catch(e){status('No saved standard details');}
+  }
+  function clearAssessment(){
+    if(!confirm('Clear the current assessment? Saved standard details will remain.'))return;
+    localStorage.removeItem(FORM_KEY);
+    fields().forEach(el=>{if(el.type==='checkbox')el.checked=false;else el.value='';});
+    $('riskRows').innerHTML='';for(let i=0;i<5;i++)addHazard({});
+    status('Assessment cleared');
+  }
+  $('saveDefaults').addEventListener('click',()=>{
+    localStorage.setItem(DEFAULT_KEY,JSON.stringify(defaultsData()));
+    status('Standard details saved');
+  });
+  $('loadDefaults').addEventListener('click',applyDefaults);
+  $('printBtn').addEventListener('click',()=>window.print());
+  $('clearBtn').addEventListener('click',clearAssessment);
+  $('addRow').addEventListener('click',()=>{addHazard({});scheduleSave();});
+  $('resetRows').addEventListener('click',()=>{if(confirm('Reset all hazard rows?')){$('riskRows').innerHTML='';for(let i=0;i<5;i++)addHazard({});scheduleSave();}});
+  $('exportBtn').addEventListener('click',()=>{
+    const blob=new Blob([JSON.stringify({assessment:readForm(),defaults:JSON.parse(localStorage.getItem(DEFAULT_KEY)||'{}')},null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='uksn-drone-risk-assessment.json';a.click();URL.revokeObjectURL(a.href);
+  });
+  $('importBtn').addEventListener('click',()=>$('importFile').click());
+  $('importFile').addEventListener('change',async e=>{
+    const file=e.target.files[0];if(!file)return;
+    try{const data=JSON.parse(await file.text());if(data.assessment)setForm(data.assessment);else setForm(data);if(data.defaults)localStorage.setItem(DEFAULT_KEY,JSON.stringify(data.defaults));saveForm();status('Import complete');}
+    catch(err){alert('That file could not be read as an assessment backup.');}
+    e.target.value='';
+  });
+  fields().forEach(el=>el.addEventListener('input',scheduleSave));
+  loadSaved();
+  if(!$('date').value){const now=new Date();$('date').value=new Date(now-now.getTimezoneOffset()*60000).toISOString().slice(0,10);}
+})();
+</script>
+</body>
+</html>
