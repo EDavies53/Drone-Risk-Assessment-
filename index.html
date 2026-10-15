@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>UKSN Drone Risk Assessment</title>
+<title>Drone Risk Assessment</title>
 <style>
 :root{--ink:#252525;--grey:#55565a;--light:#ececec;--paper:#fff;--burgundy:#87083e;--blue:#0750b4;--green:#16833b;--yellow:#f4d21d;--red:#e21d25}
 *{box-sizing:border-box}
@@ -60,7 +60,7 @@ input[type=checkbox]{width:auto;accent-color:var(--blue)}
 </head>
 <body>
 <div class="toolbar">
-  <strong>UKSN · DRONE RISK ASSESSMENT</strong>
+  <strong>DRONE RISK ASSESSMENT</strong>
   <button class="primary" id="saveDefaults">Save standard details</button>
   <button class="secondary" id="loadDefaults">Load standard details</button>
   <button class="secondary" id="printBtn">Print / Save PDF</button>
@@ -71,7 +71,7 @@ input[type=checkbox]{width:auto;accent-color:var(--blue)}
   <input id="importFile" type="file" accept=".json,application/json" hidden>
 </div>
 <main class="sheet" id="assessment">
-  <h1>UKSN DRONE RISK ASSESSMENT</h1>
+  <h1>DRONE RISK ASSESSMENT</h1>
   <div class="meta">
     <div class="field wide"><label for="location">Location</label><input id="location" data-default placeholder="Operating location / site"></div>
     <div class="field"><label for="date">Date</label><input id="date" type="date"></div>
@@ -147,8 +147,8 @@ input[type=checkbox]{width:auto;accent-color:var(--blue)}
 </main>
 <script>
 (() => {
-  const FORM_KEY = 'uksn-drone-assessment-v1';
-  const DEFAULT_KEY = 'uksn-drone-defaults-v1';
+  const FORM_KEY = 'drone-assessment-unbranded-v1';
+  const DEFAULT_KEY = 'drone-assessment-unbranded-defaults-v1';
   const $ = id => document.getElementById(id);
   const status = msg => { $('status').textContent = msg; };
   const fields = () => [...document.querySelectorAll('#assessment input, #assessment select, #assessment textarea')];
@@ -251,7 +251,7 @@ input[type=checkbox]{width:auto;accent-color:var(--blue)}
   $('resetRows').addEventListener('click',()=>{if(confirm('Reset all hazard rows?')){$('riskRows').innerHTML='';for(let i=0;i<5;i++)addHazard({});scheduleSave();}});
   $('exportBtn').addEventListener('click',()=>{
     const blob=new Blob([JSON.stringify({assessment:readForm(),defaults:JSON.parse(localStorage.getItem(DEFAULT_KEY)||'{}')},null,2)],{type:'application/json'});
-    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='uksn-drone-risk-assessment.json';a.click();URL.revokeObjectURL(a.href);
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='drone-risk-assessment.json';a.click();URL.revokeObjectURL(a.href);
   });
   $('importBtn').addEventListener('click',()=>$('importFile').click());
   $('importFile').addEventListener('change',async e=>{
